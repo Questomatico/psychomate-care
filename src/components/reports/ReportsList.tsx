@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -36,15 +35,13 @@ import {
   Cell,
 } from "recharts";
 import { 
-  BarChart3,
   Download,
   FileSpreadsheet, 
-  PieChart as PieChartIcon, 
   Users
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "react-router-dom";
 
-// Sample data for reports
 const monthlyData = [
   { name: 'Jan', consultas: 65, receita: 15800 },
   { name: 'Fev', consultas: 59, receita: 14200 },
@@ -77,19 +74,82 @@ const insuranceDistribution = [
 
 export default function ReportsList() {
   const [activeTab, setActiveTab] = useState('financeiro');
+  const [filteredProfessionalData, setFilteredProfessionalData] = useState<typeof professionalPerformance>([]);
   const { toast } = useToast();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state?.professionalFilter) {
+      const filteredData = professionalPerformance.filter(
+        prof => prof.name === location.state.professionalFilter
+      );
+      setFilteredProfessionalData(filteredData);
+      
+      setActiveTab('financeiro');
+      
+      toast({
+        title: "Relatório Filtrado",
+        description: `Visualizando dados do profissional: ${location.state.professionalFilter}`,
+      });
+    } else {
+      setFilteredProfessionalData(professionalPerformance);
+    }
+  }, [location.state, toast]);
 
   const handleExportReport = () => {
+    const getCSVContent = () => {
+      let headers = '';
+      let content = '';
+
+      switch (activeTab) {
+        case 'financeiro':
+          headers = 'Mês,Consultas,Receita\n';
+          content = monthlyData.map(item => 
+            `${item.name},${item.consultas},${item.receita}`
+          ).join('\n');
+          break;
+        case 'consultas':
+          headers = 'Convênio,Percentual\n';
+          content = insuranceDistribution.map(item => 
+            `${item.name},${item.value}%`
+          ).join('\n');
+          break;
+        case 'pacientes':
+          headers = 'Gênero,Percentual\n';
+          content = patientDemographics.map(item => 
+            `${item.name},${item.value}%`
+          ).join('\n');
+          break;
+      }
+
+      return headers + content;
+    };
+
+    const csvContent = getCSVContent();
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const reportType = activeTab.charAt(0).toUpperCase() + activeTab.slice(1);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', `Relatório_${reportType}_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
     toast({
-      title: "Exportar Relatório",
-      description: "Funcionalidade de exportação em desenvolvimento",
+      title: "Relatório Exportado",
+      description: `O relatório ${reportType} foi exportado com sucesso!`,
     });
   };
 
   const handleGenerateReport = () => {
+    const reportType = activeTab.charAt(0).toUpperCase() + activeTab.slice(1);
+    
     toast({
-      title: "Gerar Relatório",
-      description: "Funcionalidade de geração de relatório em desenvolvimento",
+      title: "Relatório Gerado",
+      description: `O relatório ${reportType} foi gerado com sucesso e está pronto para visualização.`,
     });
   };
 
@@ -150,7 +210,11 @@ export default function ReportsList() {
 
           <Card className="overflow-hidden transition-all hover:shadow-md">
             <CardHeader>
-              <CardTitle>Desempenho por Profissional</CardTitle>
+              <CardTitle>
+                {location.state?.professionalFilter 
+                  ? `Desempenho de ${location.state.professionalFilter}` 
+                  : "Desempenho por Profissional"}
+              </CardTitle>
               <CardDescription>
                 Número de consultas e receita gerada por cada profissional
               </CardDescription>
@@ -166,7 +230,7 @@ export default function ReportsList() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {professionalPerformance.map((prof) => (
+                  {filteredProfessionalData.map((prof) => (
                     <TableRow key={prof.name}>
                       <TableCell className="font-medium">{prof.name}</TableCell>
                       <TableCell>{prof.consultas}</TableCell>

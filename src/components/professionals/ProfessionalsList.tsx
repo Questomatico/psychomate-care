@@ -35,9 +35,11 @@ import {
   BarChart 
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
+import { ProfessionalForm } from "./ProfessionalForm";
 
 // Sample data for professionals
-const professionals = [
+const initialProfessionals = [
   {
     id: 1,
     name: "Dr. Carlos Mendes",
@@ -92,7 +94,11 @@ const professionals = [
 
 export default function ProfessionalsList() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [professionals, setProfessionals] = useState(initialProfessionals);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingProfessional, setEditingProfessional] = useState<typeof professionals[0] | null>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   const filteredProfessionals = professionals.filter(professional => 
     professional.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -101,17 +107,95 @@ export default function ProfessionalsList() {
   );
 
   const handleNewProfessional = () => {
+    setEditingProfessional(null);
+    setIsFormOpen(true);
+  };
+
+  const handleEdit = (professional: typeof professionals[0]) => {
+    setEditingProfessional(professional);
+    setIsFormOpen(true);
+  };
+
+  const handleDelete = (professionalId: number) => {
+    setProfessionals(professionals.filter(p => p.id !== professionalId));
     toast({
-      title: "Novo Profissional",
-      description: "Funcionalidade de cadastro de profissional em desenvolvimento",
+      title: "Profissional Excluído",
+      description: "Profissional removido com sucesso.",
     });
   };
 
-  const handleAction = (action: string, professional: typeof professionals[0]) => {
-    toast({
-      title: `${action}: ${professional.name}`,
-      description: `Funcionalidade de ${action.toLowerCase()} em desenvolvimento`,
+  const handleViewSchedule = (professional: typeof professionals[0]) => {
+    navigate("/agendamentos", { 
+      state: { selectedProfessional: professional.name } 
     });
+  };
+
+  const handleViewReports = (professional: typeof professionals[0]) => {
+    navigate("/relatorios", { 
+      state: { professionalFilter: professional.name } 
+    });
+  };
+
+  const handleFormSubmit = (data: any) => {
+    if (editingProfessional) {
+      // Update existing professional
+      setProfessionals(professionals.map(prof => 
+        prof.id === editingProfessional.id 
+          ? { 
+              ...prof, 
+              name: data.name, 
+              specialty: data.specialty, 
+              email: data.email,
+              phone: data.phone,
+              insurances: data.insurances || ["Particular"],
+              status: data.status
+            } 
+          : prof
+      ));
+      toast({
+        title: "Profissional Atualizado",
+        description: "Dados do profissional atualizados com sucesso.",
+      });
+    } else {
+      // Add new professional
+      const newProfessional = {
+        id: professionals.length > 0 ? Math.max(...professionals.map(p => p.id)) + 1 : 1,
+        name: data.name,
+        specialty: data.specialty,
+        email: data.email,
+        phone: data.phone,
+        insurances: data.insurances || ["Particular"],
+        status: data.status || "Ativo",
+        appointmentsThisMonth: 0,
+      };
+      setProfessionals([...professionals, newProfessional]);
+      toast({
+        title: "Profissional Cadastrado",
+        description: "Novo profissional adicionado com sucesso.",
+      });
+    }
+  };
+
+  const handleAction = (action: string, professional: typeof professionals[0]) => {
+    switch (action) {
+      case "Ver Agenda":
+        handleViewSchedule(professional);
+        break;
+      case "Relatórios":
+        handleViewReports(professional);
+        break;
+      case "Editar":
+        handleEdit(professional);
+        break;
+      case "Excluir":
+        handleDelete(professional.id);
+        break;
+      default:
+        toast({
+          title: `${action}: ${professional.name}`,
+          description: `Funcionalidade de ${action.toLowerCase()} em desenvolvimento`,
+        });
+    }
   };
 
   return (
@@ -242,6 +326,13 @@ export default function ProfessionalsList() {
           </div>
         </CardContent>
       </Card>
+
+      <ProfessionalForm 
+        open={isFormOpen} 
+        onOpenChange={setIsFormOpen}
+        onSubmit={handleFormSubmit}
+        defaultValues={editingProfessional}
+      />
     </div>
   );
 }
