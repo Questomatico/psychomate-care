@@ -151,8 +151,6 @@ export default function AppointmentCalendar() {
     }
   };
 
-  const filteredAppointments = getFilteredAppointments();
-
   // Create time slots from 8:00 to 18:00
   const timeSlots = Array.from({ length: 11 }, (_, i) => {
     const hour = i + 8;
