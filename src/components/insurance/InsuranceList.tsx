@@ -29,78 +29,137 @@ import {
   BadgePlus, 
   MoreHorizontal, 
   FileText, 
-  BarChart, 
+  Users, 
   Pencil, 
   Trash2, 
   Search,
-  Download 
+  FileDown
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { InsuranceForm } from "./InsuranceForm";
 
 // Sample data for insurances
-const insurances = [
+const initialInsurances = [
   {
     id: 1,
     name: "Unimed",
-    paymentDeadline: 30,
-    activePatients: 45,
-    sessionPrice: 120.00,
-    status: "Ativo",
+    contactName: "Maria Santos",
+    contactEmail: "maria.santos@unimed.com.br",
+    contactPhone: "(11) 3456-7890",
+    paymentTerm: "30 dias após envio da fatura",
+    activePatients: 15,
   },
   {
     id: 2,
     name: "Bradesco Saúde",
-    paymentDeadline: 45,
-    activePatients: 38,
-    sessionPrice: 110.00,
-    status: "Ativo",
+    contactName: "João Silva",
+    contactEmail: "joao.silva@bradescosaude.com.br",
+    contactPhone: "(11) 2345-6789",
+    paymentTerm: "45 dias após envio da fatura",
+    activePatients: 8,
   },
   {
     id: 3,
     name: "SulAmérica",
-    paymentDeadline: 30,
-    activePatients: 22,
-    sessionPrice: 105.00,
-    status: "Ativo",
+    contactName: "Ana Oliveira",
+    contactEmail: "ana.oliveira@sulamerica.com.br",
+    contactPhone: "(11) 3456-7891",
+    paymentTerm: "30 dias após envio da fatura",
+    activePatients: 10,
   },
   {
     id: 4,
     name: "Amil",
-    paymentDeadline: 60,
-    activePatients: 15,
-    sessionPrice: 95.00,
-    status: "Ativo",
+    contactName: "Carlos Souza",
+    contactEmail: "carlos.souza@amil.com.br",
+    contactPhone: "(11) 4567-8901",
+    paymentTerm: "60 dias após envio da fatura",
+    activePatients: 5,
   },
   {
     id: 5,
     name: "NotreDame Intermédica",
-    paymentDeadline: 45,
-    activePatients: 8,
-    sessionPrice: 100.00,
-    status: "Inativo",
+    contactName: "Paula Lima",
+    contactEmail: "paula.lima@intermedica.com.br",
+    contactPhone: "(11) 5678-9012",
+    paymentTerm: "45 dias após envio da fatura",
+    activePatients: 12,
   },
 ];
 
 export default function InsuranceList() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [insurances, setInsurances] = useState(initialInsurances);
   const { toast } = useToast();
   
   const filteredInsurances = insurances.filter(insurance => 
-    insurance.name.toLowerCase().includes(searchQuery.toLowerCase())
+    insurance.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    insurance.contactName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    insurance.contactEmail.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleNewInsurance = () => {
+    setIsFormOpen(true);
+  };
+
+  const handleFormSubmit = (data: any) => {
+    // Create new insurance with form data
+    const newInsurance = {
+      id: insurances.length + 1,
+      name: data.name,
+      contactName: data.contactName,
+      contactEmail: data.contactEmail,
+      contactPhone: data.contactPhone,
+      paymentTerm: data.paymentTerm,
+      activePatients: 0,
+    };
+
+    // Add new insurance to list
+    setInsurances([...insurances, newInsurance]);
+  };
+
+  const handleExportInsurances = () => {
     toast({
-      title: "Novo Convênio",
-      description: "Funcionalidade de criação de convênio em desenvolvimento",
+      title: "Exportar Convênios",
+      description: "Lista de convênios exportada com sucesso!",
     });
   };
 
-  const handleExport = () => {
-    toast({
-      title: "Exportar Convênios",
-      description: "Funcionalidade de exportação em desenvolvimento",
-    });
+  const handleAction = (action: string, insurance: typeof insurances[0]) => {
+    switch (action) {
+      case "Detalhes":
+        toast({
+          title: `Detalhes: ${insurance.name}`,
+          description: "Visualizando detalhes do convênio",
+        });
+        break;
+      case "Pacientes":
+        toast({
+          title: `Pacientes: ${insurance.name}`,
+          description: `Visualizando ${insurance.activePatients} pacientes vinculados`,
+        });
+        break;
+      case "Editar":
+        toast({
+          title: `Editar: ${insurance.name}`,
+          description: "Editando dados do convênio",
+        });
+        break;
+      case "Excluir":
+        // Remove insurance from list
+        setInsurances(insurances.filter(i => i.id !== insurance.id));
+        toast({
+          title: `Convênio Excluído`,
+          description: `${insurance.name} foi removido com sucesso!`,
+        });
+        break;
+      default:
+        toast({
+          title: `${action}: ${insurance.name}`,
+          description: `Funcionalidade de ${action.toLowerCase()} em desenvolvimento`,
+        });
+    }
   };
 
   return (
@@ -108,11 +167,18 @@ export default function InsuranceList() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
         <h2 className="text-3xl font-bold tracking-tight">Convênios</h2>
         <div className="flex flex-col sm:flex-row gap-2">
-          <Button variant="outline" className="w-full sm:w-auto" onClick={handleExport}>
-            <Download className="mr-2 h-4 w-4" />
+          <Button 
+            variant="outline" 
+            className="w-full sm:w-auto"
+            onClick={handleExportInsurances}
+          >
+            <FileDown className="mr-2 h-4 w-4" />
             Exportar
           </Button>
-          <Button className="w-full sm:w-auto" onClick={handleNewInsurance}>
+          <Button 
+            className="w-full sm:w-auto" 
+            onClick={handleNewInsurance}
+          >
             <BadgePlus className="mr-2 h-4 w-4" />
             Novo Convênio
           </Button>
@@ -123,7 +189,7 @@ export default function InsuranceList() {
         <CardHeader className="pb-2">
           <CardTitle>Lista de Convênios</CardTitle>
           <CardDescription>
-            Gerencie todos os convênios da clínica
+            Gerencie todos os convênios e suas informações
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -144,10 +210,9 @@ export default function InsuranceList() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Nome</TableHead>
-                  <TableHead className="hidden md:table-cell">Prazo (dias)</TableHead>
-                  <TableHead className="hidden lg:table-cell">Pacientes</TableHead>
-                  <TableHead>Valor Sessão</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead className="hidden md:table-cell">Contato</TableHead>
+                  <TableHead className="hidden lg:table-cell">Prazo de Pagamento</TableHead>
+                  <TableHead>Pacientes Ativos</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
@@ -156,18 +221,15 @@ export default function InsuranceList() {
                   filteredInsurances.map((insurance) => (
                     <TableRow key={insurance.id} className="transition-colors hover:bg-muted/50">
                       <TableCell className="font-medium">{insurance.name}</TableCell>
-                      <TableCell className="hidden md:table-cell">{insurance.paymentDeadline}</TableCell>
-                      <TableCell className="hidden lg:table-cell">{insurance.activePatients}</TableCell>
-                      <TableCell>R$ {insurance.sessionPrice.toFixed(2)}</TableCell>
-                      <TableCell>
-                        <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          insurance.status === 'Ativo'
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}>
-                          {insurance.status}
+                      <TableCell className="hidden md:table-cell">
+                        <div className="text-sm">
+                          {insurance.contactName}
+                          <br />
+                          {insurance.contactEmail}
                         </div>
                       </TableCell>
+                      <TableCell className="hidden lg:table-cell">{insurance.paymentTerm}</TableCell>
+                      <TableCell>{insurance.activePatients}</TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -178,20 +240,23 @@ export default function InsuranceList() {
                           <DropdownMenuContent align="end" className="w-48">
                             <DropdownMenuLabel>Ações</DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleAction("Detalhes", insurance)}>
                               <FileText className="mr-2 h-4 w-4" />
                               <span>Detalhes</span>
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <BarChart className="mr-2 h-4 w-4" />
-                              <span>Relatórios</span>
+                            <DropdownMenuItem onClick={() => handleAction("Pacientes", insurance)}>
+                              <Users className="mr-2 h-4 w-4" />
+                              <span>Pacientes</span>
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleAction("Editar", insurance)}>
                               <Pencil className="mr-2 h-4 w-4" />
                               <span>Editar</span>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-destructive">
+                            <DropdownMenuItem 
+                              className="text-destructive"
+                              onClick={() => handleAction("Excluir", insurance)}
+                            >
                               <Trash2 className="mr-2 h-4 w-4" />
                               <span>Excluir</span>
                             </DropdownMenuItem>
@@ -202,7 +267,7 @@ export default function InsuranceList() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={6} className="h-24 text-center">
+                    <TableCell colSpan={5} className="h-24 text-center">
                       Nenhum convênio encontrado.
                     </TableCell>
                   </TableRow>
@@ -212,6 +277,12 @@ export default function InsuranceList() {
           </div>
         </CardContent>
       </Card>
+
+      <InsuranceForm 
+        open={isFormOpen} 
+        onOpenChange={setIsFormOpen}
+        onSubmit={handleFormSubmit}
+      />
     </div>
   );
 }

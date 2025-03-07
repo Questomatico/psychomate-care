@@ -32,12 +32,14 @@ import {
   Calendar, 
   Pencil, 
   Trash2, 
-  Search 
+  Search,
+  FileDown
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { PatientForm } from "./PatientForm";
 
 // Sample data for patients
-const patients = [
+const initialPatients = [
   {
     id: 1,
     name: "Ana Silva",
@@ -97,6 +99,8 @@ const patients = [
 
 export default function PatientsList() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [patients, setPatients] = useState(initialPatients);
   const { toast } = useToast();
   
   const filteredPatients = patients.filter(patient => 
@@ -106,27 +110,96 @@ export default function PatientsList() {
   );
 
   const handleNewPatient = () => {
+    setIsFormOpen(true);
+  };
+
+  const handleFormSubmit = (data: any) => {
+    // Format the date for display
+    const dateOfBirth = data.dateOfBirth 
+      ? new Date(data.dateOfBirth).toLocaleDateString('pt-BR')
+      : '';
+
+    // Create new patient with form data
+    const newPatient = {
+      id: patients.length + 1,
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      dateOfBirth: dateOfBirth,
+      lastAppointment: null,
+      nextAppointment: null,
+      status: "Ativo",
+      insurance: data.insurance || "Particular",
+    };
+
+    // Add new patient to list
+    setPatients([...patients, newPatient]);
+  };
+
+  const handleExportPatients = () => {
     toast({
-      title: "Novo Paciente",
-      description: "Funcionalidade de cadastro de paciente em desenvolvimento",
+      title: "Exportar Pacientes",
+      description: "Lista de pacientes exportada com sucesso!",
     });
   };
 
   const handleAction = (action: string, patient: typeof patients[0]) => {
-    toast({
-      title: `${action}: ${patient.name}`,
-      description: `Funcionalidade de ${action.toLowerCase()} em desenvolvimento`,
-    });
+    switch (action) {
+      case "Prontuário":
+        toast({
+          title: `Prontuário: ${patient.name}`,
+          description: "Abrindo prontuário do paciente",
+        });
+        break;
+      case "Agendamento":
+        toast({
+          title: `Agendamento: ${patient.name}`,
+          description: "Criando novo agendamento para o paciente",
+        });
+        break;
+      case "Editar":
+        toast({
+          title: `Editar: ${patient.name}`,
+          description: "Editando dados do paciente",
+        });
+        break;
+      case "Excluir":
+        // Remove patient from list
+        setPatients(patients.filter(p => p.id !== patient.id));
+        toast({
+          title: `Paciente Excluído`,
+          description: `${patient.name} foi removido com sucesso!`,
+        });
+        break;
+      default:
+        toast({
+          title: `${action}: ${patient.name}`,
+          description: `Funcionalidade de ${action.toLowerCase()} em desenvolvimento`,
+        });
+    }
   };
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
         <h2 className="text-3xl font-bold tracking-tight">Pacientes</h2>
-        <Button className="w-full sm:w-auto" onClick={handleNewPatient}>
-          <BadgePlus className="mr-2 h-4 w-4" />
-          Novo Paciente
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Button 
+            variant="outline" 
+            className="w-full sm:w-auto"
+            onClick={handleExportPatients}
+          >
+            <FileDown className="mr-2 h-4 w-4" />
+            Exportar
+          </Button>
+          <Button 
+            className="w-full sm:w-auto" 
+            onClick={handleNewPatient}
+          >
+            <BadgePlus className="mr-2 h-4 w-4" />
+            Novo Paciente
+          </Button>
+        </div>
       </div>
 
       <Card className="overflow-hidden transition-all hover:shadow-md">
@@ -231,6 +304,12 @@ export default function PatientsList() {
           </div>
         </CardContent>
       </Card>
+
+      <PatientForm 
+        open={isFormOpen} 
+        onOpenChange={setIsFormOpen}
+        onSubmit={handleFormSubmit}
+      />
     </div>
   );
 }

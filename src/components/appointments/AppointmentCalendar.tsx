@@ -22,9 +22,10 @@ import {
   User
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { AppointmentForm } from "./AppointmentForm";
 
 // Sample data for appointments
-const appointments = [
+const initialAppointments = [
   {
     id: 1,
     patientName: "Ana Silva",
@@ -94,6 +95,8 @@ const professionals = [
 export default function AppointmentCalendar() {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [selectedProfessional, setSelectedProfessional] = useState<string | undefined>();
+  const [appointments, setAppointments] = useState(initialAppointments);
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const { toast } = useToast();
 
   // Format the selected date for display
@@ -122,10 +125,35 @@ export default function AppointmentCalendar() {
   const filteredAppointments = getFilteredAppointments();
 
   const handleNewAppointment = () => {
-    toast({
-      title: "Novo Agendamento",
-      description: "Funcionalidade de criação de agendamento em desenvolvimento",
-    });
+    setIsFormOpen(true);
+  };
+
+  const handleAppointmentFormSubmit = (data: any) => {
+    // Get patient and professional names from their IDs
+    // In a real app, you would fetch these from your API
+    const patientName = "Novo Paciente"; // This would be fetched based on patientId
+    const professionalName = professionals.find(
+      p => p.id.toString() === data.professionalId
+    )?.name || "Profissional";
+
+    // Create a new appointment
+    const newAppointment = {
+      id: appointments.length + 1,
+      patientName,
+      professionalName,
+      date: format(data.date, "yyyy-MM-dd"),
+      time: data.time,
+      duration: data.duration,
+      type: data.type,
+      status: data.status,
+      insurance: data.insurance || "Particular",
+    };
+
+    // Add the new appointment to the list
+    setAppointments([...appointments, newAppointment]);
+    
+    // Update the selected date to the appointment date
+    setDate(data.date);
   };
 
   const handleFilterClick = () => {
@@ -260,7 +288,11 @@ export default function AppointmentCalendar() {
                         <div className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           appointment.status === 'Confirmado'
                             ? 'bg-green-100 text-green-800'
-                            : 'bg-yellow-100 text-yellow-800'
+                            : appointment.status === 'Pendente'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : appointment.status === 'Cancelado'
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-blue-100 text-blue-800'
                         }`}>
                           {appointment.status}
                         </div>
@@ -285,6 +317,13 @@ export default function AppointmentCalendar() {
           </CardContent>
         </Card>
       </div>
+
+      <AppointmentForm
+        open={isFormOpen}
+        onOpenChange={setIsFormOpen}
+        onSubmit={handleAppointmentFormSubmit}
+        defaultDate={date}
+      />
     </div>
   );
 }
