@@ -34,6 +34,7 @@ import {
   Search,
   BarChart 
 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 // Sample data for professionals
 const professionals = [
@@ -91,6 +92,7 @@ const professionals = [
 
 export default function ProfessionalsList() {
   const [searchQuery, setSearchQuery] = useState("");
+  const { toast } = useToast();
   
   const filteredProfessionals = professionals.filter(professional => 
     professional.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -98,11 +100,25 @@ export default function ProfessionalsList() {
     professional.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const handleNewProfessional = () => {
+    toast({
+      title: "Novo Profissional",
+      description: "Funcionalidade de cadastro de profissional em desenvolvimento",
+    });
+  };
+
+  const handleAction = (action: string, professional: typeof professionals[0]) => {
+    toast({
+      title: `${action}: ${professional.name}`,
+      description: `Funcionalidade de ${action.toLowerCase()} em desenvolvimento`,
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
         <h2 className="text-3xl font-bold tracking-tight">Profissionais</h2>
-        <Button className="w-full sm:w-auto">
+        <Button className="w-full sm:w-auto" onClick={handleNewProfessional}>
           <BadgePlus className="mr-2 h-4 w-4" />
           Novo Profissional
         </Button>
@@ -189,20 +205,23 @@ export default function ProfessionalsList() {
                           <DropdownMenuContent align="end" className="w-48">
                             <DropdownMenuLabel>Ações</DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleAction("Ver Agenda", professional)}>
                               <Calendar className="mr-2 h-4 w-4" />
                               <span>Ver Agenda</span>
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleAction("Relatórios", professional)}>
                               <BarChart className="mr-2 h-4 w-4" />
                               <span>Relatórios</span>
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleAction("Editar", professional)}>
                               <Pencil className="mr-2 h-4 w-4" />
                               <span>Editar</span>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-destructive">
+                            <DropdownMenuItem 
+                              className="text-destructive"
+                              onClick={() => handleAction("Excluir", professional)}
+                            >
                               <Trash2 className="mr-2 h-4 w-4" />
                               <span>Excluir</span>
                             </DropdownMenuItem>

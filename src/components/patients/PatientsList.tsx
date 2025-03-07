@@ -34,6 +34,7 @@ import {
   Trash2, 
   Search 
 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 // Sample data for patients
 const patients = [
@@ -96,6 +97,7 @@ const patients = [
 
 export default function PatientsList() {
   const [searchQuery, setSearchQuery] = useState("");
+  const { toast } = useToast();
   
   const filteredPatients = patients.filter(patient => 
     patient.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -103,11 +105,25 @@ export default function PatientsList() {
     patient.phone.includes(searchQuery)
   );
 
+  const handleNewPatient = () => {
+    toast({
+      title: "Novo Paciente",
+      description: "Funcionalidade de cadastro de paciente em desenvolvimento",
+    });
+  };
+
+  const handleAction = (action: string, patient: typeof patients[0]) => {
+    toast({
+      title: `${action}: ${patient.name}`,
+      description: `Funcionalidade de ${action.toLowerCase()} em desenvolvimento`,
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
         <h2 className="text-3xl font-bold tracking-tight">Pacientes</h2>
-        <Button className="w-full sm:w-auto">
+        <Button className="w-full sm:w-auto" onClick={handleNewPatient}>
           <BadgePlus className="mr-2 h-4 w-4" />
           Novo Paciente
         </Button>
@@ -178,20 +194,23 @@ export default function PatientsList() {
                           <DropdownMenuContent align="end" className="w-48">
                             <DropdownMenuLabel>Ações</DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleAction("Prontuário", patient)}>
                               <FilePlus className="mr-2 h-4 w-4" />
                               <span>Prontuário</span>
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleAction("Agendamento", patient)}>
                               <Calendar className="mr-2 h-4 w-4" />
                               <span>Agendar</span>
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleAction("Editar", patient)}>
                               <Pencil className="mr-2 h-4 w-4" />
                               <span>Editar</span>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-destructive">
+                            <DropdownMenuItem 
+                              className="text-destructive"
+                              onClick={() => handleAction("Excluir", patient)}
+                            >
                               <Trash2 className="mr-2 h-4 w-4" />
                               <span>Excluir</span>
                             </DropdownMenuItem>

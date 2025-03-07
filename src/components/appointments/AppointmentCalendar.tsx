@@ -21,6 +21,7 @@ import {
   Plus,
   User
 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 // Sample data for appointments
 const appointments = [
@@ -93,6 +94,7 @@ const professionals = [
 export default function AppointmentCalendar() {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [selectedProfessional, setSelectedProfessional] = useState<string | undefined>();
+  const { toast } = useToast();
 
   // Format the selected date for display
   const formattedDate = date
@@ -119,6 +121,38 @@ export default function AppointmentCalendar() {
 
   const filteredAppointments = getFilteredAppointments();
 
+  const handleNewAppointment = () => {
+    toast({
+      title: "Novo Agendamento",
+      description: "Funcionalidade de criação de agendamento em desenvolvimento",
+    });
+  };
+
+  const handleFilterClick = () => {
+    toast({
+      title: "Filtro Avançado",
+      description: "Funcionalidade de filtro avançado em desenvolvimento",
+    });
+  };
+
+  const handleNavigatePrevious = () => {
+    if (date) {
+      const previousDay = new Date(date);
+      previousDay.setDate(previousDay.getDate() - 1);
+      setDate(previousDay);
+    }
+  };
+
+  const handleNavigateNext = () => {
+    if (date) {
+      const nextDay = new Date(date);
+      nextDay.setDate(nextDay.getDate() + 1);
+      setDate(nextDay);
+    }
+  };
+
+  const filteredAppointments = getFilteredAppointments();
+
   // Create time slots from 8:00 to 18:00
   const timeSlots = Array.from({ length: 11 }, (_, i) => {
     const hour = i + 8;
@@ -129,7 +163,7 @@ export default function AppointmentCalendar() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
         <h2 className="text-3xl font-bold tracking-tight">Agendamentos</h2>
-        <Button className="w-full sm:w-auto">
+        <Button className="w-full sm:w-auto" onClick={handleNewAppointment}>
           <Plus className="mr-2 h-4 w-4" />
           Novo Agendamento
         </Button>
@@ -173,14 +207,14 @@ export default function AppointmentCalendar() {
               </div>
 
               <div className="flex items-center justify-between">
-                <Button variant="outline" size="icon">
+                <Button variant="outline" size="icon" onClick={handleFilterClick}>
                   <Filter className="h-4 w-4" />
                 </Button>
                 <div className="flex items-center space-x-1">
-                  <Button variant="outline" size="icon">
+                  <Button variant="outline" size="icon" onClick={handleNavigatePrevious}>
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
-                  <Button variant="outline" size="icon">
+                  <Button variant="outline" size="icon" onClick={handleNavigateNext}>
                     <ChevronRight className="h-4 w-4" />
                   </Button>
                 </div>
@@ -243,7 +277,7 @@ export default function AppointmentCalendar() {
                   <p className="text-muted-foreground">
                     Nenhum agendamento para esta data.
                   </p>
-                  <Button variant="outline" className="mt-4">
+                  <Button variant="outline" className="mt-4" onClick={handleNewAppointment}>
                     <Plus className="mr-2 h-4 w-4" />
                     Agendar Consulta
                   </Button>

@@ -26,6 +26,7 @@ import {
   Plus 
 } from "lucide-react";
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
+import { useToast } from "@/hooks/use-toast";
 
 // Sample data for financial overview
 const financialSummary = {
@@ -101,6 +102,7 @@ const insuranceBreakdown = [
 export default function FinanceOverview() {
   // For tab state
   const [activeTab, setActiveTab] = useState("overview");
+  const { toast } = useToast();
   
   // Calculate percentage increase in profit
   const profitIncrease = (
@@ -108,20 +110,41 @@ export default function FinanceOverview() {
     financialSummary.lastMonth.profit * 100
   ).toFixed(1);
 
+  const handleNewTransaction = () => {
+    toast({
+      title: "Nova Transação",
+      description: "Funcionalidade de criação de transação em desenvolvimento",
+    });
+  };
+
+  const handleFilter = () => {
+    toast({
+      title: "Filtrar Transações",
+      description: "Funcionalidade de filtro de transações em desenvolvimento",
+    });
+  };
+
+  const handleExport = () => {
+    toast({
+      title: "Exportar Dados Financeiros",
+      description: "Funcionalidade de exportação em desenvolvimento",
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
         <h2 className="text-3xl font-bold tracking-tight">Financeiro</h2>
         <div className="flex flex-col sm:flex-row gap-2">
-          <Button variant="outline" className="w-full sm:w-auto">
+          <Button variant="outline" className="w-full sm:w-auto" onClick={handleFilter}>
             <Filter className="mr-2 h-4 w-4" />
             Filtrar
           </Button>
-          <Button variant="outline" className="w-full sm:w-auto">
+          <Button variant="outline" className="w-full sm:w-auto" onClick={handleExport}>
             <Download className="mr-2 h-4 w-4" />
             Exportar
           </Button>
-          <Button className="w-full sm:w-auto">
+          <Button className="w-full sm:w-auto" onClick={handleNewTransaction}>
             <Plus className="mr-2 h-4 w-4" />
             Nova Transação
           </Button>

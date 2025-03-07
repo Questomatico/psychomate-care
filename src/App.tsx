@@ -11,6 +11,9 @@ import PatientsList from "./components/patients/PatientsList";
 import ProfessionalsList from "./components/professionals/ProfessionalsList";
 import AppointmentCalendar from "./components/appointments/AppointmentCalendar";
 import FinanceOverview from "./components/finance/FinanceOverview";
+import MedicalRecordsList from "./components/medical-records/MedicalRecordsList";
+import ReportsList from "./components/reports/ReportsList";
+import InsuranceList from "./components/insurance/InsuranceList";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +30,9 @@ const App = () => (
             <Route path="/profissionais" element={<ProfessionalsList />} />
             <Route path="/agendamentos" element={<AppointmentCalendar />} />
             <Route path="/financeiro" element={<FinanceOverview />} />
+            <Route path="/prontuarios" element={<MedicalRecordsList />} />
+            <Route path="/relatorios" element={<ReportsList />} />
+            <Route path="/convenios" element={<InsuranceList />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
