@@ -120,6 +120,7 @@ export function AppointmentForm({
   defaultDate
 }: AppointmentFormProps) {
   const { toast } = useToast();
+  const [showCalendar, setShowCalendar] = useState(false);
   
   const form = useForm<AppointmentFormValues>({
     resolver: zodResolver(formSchema),
@@ -229,7 +230,7 @@ export function AppointmentForm({
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>Data</FormLabel>
-                    <Popover>
+                    <Popover open={showCalendar} onOpenChange={setShowCalendar}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
@@ -252,9 +253,13 @@ export function AppointmentForm({
                         <Calendar
                           mode="single"
                           selected={field.value}
-                          onSelect={field.onChange}
+                          onSelect={(date) => {
+                            field.onChange(date);
+                            setShowCalendar(false);
+                          }}
                           disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                           initialFocus
+                          showManualInput={true}
                           locale={ptBR}
                           className="p-3 pointer-events-auto"
                         />

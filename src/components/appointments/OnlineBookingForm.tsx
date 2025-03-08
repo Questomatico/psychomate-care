@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -66,7 +65,6 @@ const insuranceOptions = [
   "Outros"
 ];
 
-// Validation schema for appointment form
 const formSchema = z.object({
   patientName: z.string().min(3, "Nome completo é obrigatório"),
   patientEmail: z.string().email("Email inválido"),
@@ -105,6 +103,8 @@ export function OnlineBookingForm({
   onSubmit,
   professionals
 }: OnlineBookingFormProps) {
+  const [showCalendar, setShowCalendar] = useState(false);
+  
   const form = useForm<OnlineBookingFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -217,7 +217,7 @@ export function OnlineBookingForm({
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>Data</FormLabel>
-                    <Popover>
+                    <Popover open={showCalendar} onOpenChange={setShowCalendar}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
@@ -240,9 +240,13 @@ export function OnlineBookingForm({
                         <Calendar
                           mode="single"
                           selected={field.value}
-                          onSelect={field.onChange}
+                          onSelect={(date) => {
+                            field.onChange(date);
+                            setShowCalendar(false);
+                          }}
                           disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                           initialFocus
+                          showManualInput={true}
                           locale={ptBR}
                           className="p-3 pointer-events-auto"
                         />

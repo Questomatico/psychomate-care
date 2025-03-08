@@ -76,6 +76,7 @@ export function CalendarSidebar({
           selected={date}
           onSelect={onDateChange}
           locale={ptBR}
+          showManualInput={true}
           className="p-0 w-full rounded-md border mx-auto pointer-events-auto"
         />
 
