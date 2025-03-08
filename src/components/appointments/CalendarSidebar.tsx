@@ -1,4 +1,3 @@
-
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ChevronLeft, ChevronRight, Filter } from "lucide-react";
@@ -72,7 +71,6 @@ export function CalendarSidebar({
       </CardHeader>
       <CardContent>
         <Calendar
-          mode="single"
           selected={date}
           onSelect={onDateChange}
           locale={ptBR}

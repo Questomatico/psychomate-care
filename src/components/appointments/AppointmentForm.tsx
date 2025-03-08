@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -251,7 +250,6 @@ export function AppointmentForm({
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
-                          mode="single"
                           selected={field.value}
                           onSelect={(date) => {
                             field.onChange(date);

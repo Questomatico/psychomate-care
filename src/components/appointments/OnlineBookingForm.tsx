@@ -238,7 +238,6 @@ export function OnlineBookingForm({
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
-                          mode="single"
                           selected={field.value}
                           onSelect={(date) => {
                             field.onChange(date);

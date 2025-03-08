@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -40,7 +39,6 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 
-// Validation schema for patient form
 const formSchema = z.object({
   name: z.string().min(3, "Nome deve ter pelo menos 3 caracteres"),
   email: z.string().email("Email inválido"),
@@ -201,7 +199,6 @@ export function PatientForm({ open, onOpenChange, onSubmit }: PatientFormProps) 
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-0" align="start">
                             <Calendar
-                              mode="single"
                               selected={field.value}
                               onSelect={field.onChange}
                               disabled={(date) =>
