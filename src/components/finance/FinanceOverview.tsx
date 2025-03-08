@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { 
   Card, 
@@ -34,6 +33,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import TransactionForm from "./TransactionForm";
 import InsurancePaymentForm from "./InsurancePaymentForm";
 import { format } from "date-fns";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // Sample data for financial overview
 const financialSummary = {
@@ -805,4 +811,3 @@ export default function FinanceOverview() {
     </div>
   );
 }
-
