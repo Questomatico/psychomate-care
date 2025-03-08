@@ -47,6 +47,8 @@ const initialInsurances = [
     contactEmail: "maria.santos@unimed.com.br",
     contactPhone: "(11) 3456-7890",
     paymentTerm: "30 dias após envio da fatura",
+    serviceValues: "Terapia Individual: R$ 120,00; Terapia de Casal: R$ 180,00",
+    notes: "Limite de 20 sessões por ano por paciente",
     activePatients: 15,
   },
   {
@@ -56,6 +58,8 @@ const initialInsurances = [
     contactEmail: "joao.silva@bradescosaude.com.br",
     contactPhone: "(11) 2345-6789",
     paymentTerm: "45 dias após envio da fatura",
+    serviceValues: "Terapia Individual: R$ 140,00; Avaliação Psicológica: R$ 200,00",
+    notes: "Necessário enviar relatórios trimestrais",
     activePatients: 8,
   },
   {
@@ -65,6 +69,8 @@ const initialInsurances = [
     contactEmail: "ana.oliveira@sulamerica.com.br",
     contactPhone: "(11) 3456-7891",
     paymentTerm: "30 dias após envio da fatura",
+    serviceValues: "Terapia Individual: R$ 130,00; Terapia Infantil: R$ 150,00",
+    notes: "",
     activePatients: 10,
   },
   {
@@ -74,6 +80,8 @@ const initialInsurances = [
     contactEmail: "carlos.souza@amil.com.br",
     contactPhone: "(11) 4567-8901",
     paymentTerm: "60 dias após envio da fatura",
+    serviceValues: "Terapia Individual: R$ 110,00",
+    notes: "Limite de 12 sessões por ano",
     activePatients: 5,
   },
   {
@@ -83,6 +91,8 @@ const initialInsurances = [
     contactEmail: "paula.lima@intermedica.com.br",
     contactPhone: "(11) 5678-9012",
     paymentTerm: "45 dias após envio da fatura",
+    serviceValues: "Terapia Individual: R$ 125,00; Terapia de Casal: R$ 190,00",
+    notes: "Necessário autorização prévia para terapia de casal",
     activePatients: 12,
   },
 ];
@@ -91,6 +101,7 @@ export default function InsuranceList() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [insurances, setInsurances] = useState(initialInsurances);
+  const [editingInsurance, setEditingInsurance] = useState<any>(null);
   const { toast } = useToast();
   
   const filteredInsurances = insurances.filter(insurance => 
@@ -100,51 +111,128 @@ export default function InsuranceList() {
   );
 
   const handleNewInsurance = () => {
+    setEditingInsurance(null);
+    setIsFormOpen(true);
+  };
+
+  const handleEditInsurance = (insurance: any) => {
+    setEditingInsurance(insurance);
     setIsFormOpen(true);
   };
 
   const handleFormSubmit = (data: any) => {
-    // Create new insurance with form data
-    const newInsurance = {
-      id: insurances.length + 1,
-      name: data.name,
-      contactName: data.contactName,
-      contactEmail: data.contactEmail,
-      contactPhone: data.contactPhone,
-      paymentTerm: data.paymentTerm,
-      activePatients: 0,
-    };
+    if (editingInsurance) {
+      // Update existing insurance
+      const updatedInsurances = insurances.map(insurance => 
+        insurance.id === editingInsurance.id 
+          ? { ...insurance, ...data } 
+          : insurance
+      );
+      setInsurances(updatedInsurances);
+      
+      toast({
+        title: "Convênio atualizado",
+        description: `${data.name} foi atualizado com sucesso!`,
+      });
+    } else {
+      // Create new insurance with form data
+      const newInsurance = {
+        id: insurances.length + 1,
+        name: data.name,
+        contactName: data.contactName,
+        contactEmail: data.contactEmail,
+        contactPhone: data.contactPhone,
+        paymentTerm: data.paymentTerm,
+        serviceValues: data.serviceValues,
+        notes: data.notes || "",
+        activePatients: 0,
+      };
 
-    // Add new insurance to list
-    setInsurances([...insurances, newInsurance]);
+      // Add new insurance to list
+      setInsurances([...insurances, newInsurance]);
+      
+      toast({
+        title: "Convênio cadastrado",
+        description: `${data.name} foi cadastrado com sucesso!`,
+      });
+    }
   };
 
   const handleExportInsurances = () => {
+    // Create CSV data
+    const headers = "ID,Nome,Contato,Email,Telefone,Prazo de Pagamento,Pacientes Ativos\n";
+    const csvContent = headers + filteredInsurances.map(insurance => 
+      `${insurance.id},"${insurance.name}","${insurance.contactName}","${insurance.contactEmail}","${insurance.contactPhone}","${insurance.paymentTerm}",${insurance.activePatients}`
+    ).join("\n");
+    
+    // Create download link
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Convênios_${new Date().toISOString().split("T")[0]}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
     toast({
       title: "Exportar Convênios",
       description: "Lista de convênios exportada com sucesso!",
     });
   };
 
+  const handleShowDetails = (insurance: typeof insurances[0]) => {
+    toast({
+      title: `Detalhes: ${insurance.name}`,
+      description: "Visualizando detalhes do convênio",
+    });
+    
+    // Show more detailed information in a toast
+    toast({
+      title: "Informações de Pagamento",
+      description: `Prazo: ${insurance.paymentTerm}\nValores: ${insurance.serviceValues}`,
+    });
+    
+    if (insurance.notes) {
+      toast({
+        title: "Observações",
+        description: insurance.notes,
+      });
+    }
+  };
+  
+  const handleShowPatients = (insurance: typeof insurances[0]) => {
+    toast({
+      title: `Pacientes: ${insurance.name}`,
+      description: `Visualizando ${insurance.activePatients} pacientes vinculados`,
+    });
+    
+    // For demonstration purposes, we're showing a toast
+    // In a real app, this would navigate to a filtered patients list
+    if (insurance.activePatients > 0) {
+      toast({
+        title: "Lista de Pacientes",
+        description: "Esta funcionalidade estará disponível em breve: mostrar pacientes com este convênio",
+      });
+    } else {
+      toast({
+        title: "Sem Pacientes",
+        description: "Este convênio não possui pacientes vinculados no momento",
+      });
+    }
+  };
+
   const handleAction = (action: string, insurance: typeof insurances[0]) => {
     switch (action) {
       case "Detalhes":
-        toast({
-          title: `Detalhes: ${insurance.name}`,
-          description: "Visualizando detalhes do convênio",
-        });
+        handleShowDetails(insurance);
         break;
       case "Pacientes":
-        toast({
-          title: `Pacientes: ${insurance.name}`,
-          description: `Visualizando ${insurance.activePatients} pacientes vinculados`,
-        });
+        handleShowPatients(insurance);
         break;
       case "Editar":
-        toast({
-          title: `Editar: ${insurance.name}`,
-          description: "Editando dados do convênio",
-        });
+        handleEditInsurance(insurance);
         break;
       case "Excluir":
         // Remove insurance from list
@@ -282,6 +370,7 @@ export default function InsuranceList() {
         open={isFormOpen} 
         onOpenChange={setIsFormOpen}
         onSubmit={handleFormSubmit}
+        defaultValues={editingInsurance}
       />
     </div>
   );

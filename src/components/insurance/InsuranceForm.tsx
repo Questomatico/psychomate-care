@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -20,6 +20,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
@@ -41,12 +42,14 @@ interface InsuranceFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit?: (data: InsuranceFormValues) => void;
+  defaultValues?: any;
 }
 
 export function InsuranceForm({ 
   open, 
   onOpenChange, 
-  onSubmit 
+  onSubmit,
+  defaultValues
 }: InsuranceFormProps) {
   const { toast } = useToast();
   
@@ -63,25 +66,47 @@ export function InsuranceForm({
     },
   });
 
+  // Update form when editing an existing insurance
+  useEffect(() => {
+    if (defaultValues) {
+      form.reset({
+        name: defaultValues.name,
+        contactName: defaultValues.contactName,
+        contactEmail: defaultValues.contactEmail,
+        contactPhone: defaultValues.contactPhone,
+        paymentTerm: defaultValues.paymentTerm,
+        serviceValues: defaultValues.serviceValues,
+        notes: defaultValues.notes || "",
+      });
+    } else {
+      form.reset({
+        name: "",
+        contactName: "",
+        contactEmail: "",
+        contactPhone: "",
+        paymentTerm: "",
+        serviceValues: "",
+        notes: "",
+      });
+    }
+  }, [defaultValues, form, open]);
+
   const handleSubmit = (data: InsuranceFormValues) => {
     onSubmit?.(data);
-    
-    toast({
-      title: "Convênio cadastrado",
-      description: `${data.name} foi cadastrado com sucesso!`,
-    });
-    
     onOpenChange(false);
-    form.reset();
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Cadastrar Convênio</DialogTitle>
+          <DialogTitle>
+            {defaultValues ? "Editar Convênio" : "Cadastrar Convênio"}
+          </DialogTitle>
           <DialogDescription>
-            Preencha o formulário abaixo com os dados do convênio.
+            {defaultValues 
+              ? "Atualize as informações do convênio."
+              : "Preencha o formulário abaixo com os dados do convênio."}
           </DialogDescription>
         </DialogHeader>
 
@@ -221,7 +246,7 @@ export function InsuranceForm({
               </div>
             </div>
             
-            <div className="flex justify-end space-x-4">
+            <DialogFooter>
               <Button 
                 type="button" 
                 variant="outline" 
@@ -229,8 +254,10 @@ export function InsuranceForm({
               >
                 Cancelar
               </Button>
-              <Button type="submit">Salvar Convênio</Button>
-            </div>
+              <Button type="submit">
+                {defaultValues ? "Atualizar Convênio" : "Salvar Convênio"}
+              </Button>
+            </DialogFooter>
           </form>
         </Form>
       </DialogContent>
