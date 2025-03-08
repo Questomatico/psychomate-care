@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -140,7 +141,7 @@ export default function TransactionForm({ type, onSubmit, onCancel }: Transactio
                       locale={ptBR}
                     />
                   </PopoverContent>
-                </Form>
+                </Popover>
                 <FormMessage />
               </FormItem>
             )}
