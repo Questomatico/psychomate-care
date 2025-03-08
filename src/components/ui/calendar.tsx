@@ -1,14 +1,14 @@
 
 import * as React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { DayPicker, MonthChangeEventHandler } from "react-day-picker";
+import { DayPicker, SelectedDate, DayPickerSingleProps, MonthChangeEventHandler } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-export type CalendarProps = React.ComponentProps<typeof DayPicker> & {
+export type CalendarProps = Omit<DayPickerSingleProps, "mode"> & {
   showManualInput?: boolean;
 };
 
@@ -134,12 +134,13 @@ function Calendar({
       )}
       
       <DayPicker
+        mode="single"
+        selected={selected}
+        onSelect={onSelect}
         showOutsideDays={showOutsideDays}
         className={cn("p-3 pointer-events-auto", className)}
         month={currentMonth}
         onMonthChange={handleMonthChange}
-        selected={selected}
-        onSelect={onSelect}
         classNames={{
           months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
           month: "space-y-4",
