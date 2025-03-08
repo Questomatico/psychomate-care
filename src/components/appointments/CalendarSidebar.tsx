@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ViewMode } from "./AppointmentCalendar";
 
 interface CalendarSidebarProps {
   date: Date | undefined;
@@ -23,6 +24,7 @@ interface CalendarSidebarProps {
   onFilterClick: () => void;
   onNavigatePrevious: () => void;
   onNavigateNext: () => void;
+  viewMode: ViewMode;
 }
 
 export function CalendarSidebar({
@@ -34,11 +36,39 @@ export function CalendarSidebar({
   onFilterClick,
   onNavigatePrevious,
   onNavigateNext,
+  viewMode,
 }: CalendarSidebarProps) {
+  // Format header title based on view mode
+  const formatViewTitle = () => {
+    if (!date) return "";
+    
+    if (viewMode === "day") {
+      return format(date, "d 'de' MMMM", { locale: ptBR });
+    } else if (viewMode === "week") {
+      const start = new Date(date);
+      start.setDate(start.getDate() - start.getDay() + 1); // Monday
+      const end = new Date(start);
+      end.setDate(end.getDate() + 6); // Sunday
+      return `${format(start, "d", { locale: ptBR })} - ${format(end, "d 'de' MMMM", { locale: ptBR })}`;
+    } else {
+      return format(date, "MMMM 'de' yyyy", { locale: ptBR });
+    }
+  };
+
   return (
     <Card className="lg:col-span-1 overflow-hidden transition-all hover:shadow-md">
-      <CardHeader>
-        <CardTitle>Calendário</CardTitle>
+      <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+        <CardTitle className="text-xl font-semibold capitalize">
+          {formatViewTitle()}
+        </CardTitle>
+        <div className="flex items-center space-x-1">
+          <Button variant="outline" size="icon" onClick={onNavigatePrevious} className="h-8 w-8">
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="icon" onClick={onNavigateNext} className="h-8 w-8">
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <Calendar
@@ -46,7 +76,7 @@ export function CalendarSidebar({
           selected={date}
           onSelect={onDateChange}
           locale={ptBR}
-          className="p-0 w-full rounded-md border mx-auto"
+          className="p-0 w-full rounded-md border mx-auto pointer-events-auto"
         />
 
         <Separator className="my-4" />
@@ -76,14 +106,6 @@ export function CalendarSidebar({
             <Button variant="outline" size="icon" onClick={onFilterClick}>
               <Filter className="h-4 w-4" />
             </Button>
-            <div className="flex items-center space-x-1">
-              <Button variant="outline" size="icon" onClick={onNavigatePrevious}>
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" size="icon" onClick={onNavigateNext}>
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
           </div>
         </div>
       </CardContent>
