@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, startOfMonth, endOfMonth, addDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Calendar as CalendarIcon, Users, MailCheck, FileExport } from "lucide-react";
+import { Calendar as CalendarIcon, Users, MailCheck, FileDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { initialAppointments, professionals } from "./AppointmentData";
 import { AppointmentHeader } from "./AppointmentHeader";
@@ -230,7 +230,7 @@ export default function AppointmentCalendar() {
             
             <div className="flex space-x-2">
               <Button variant="outline" size="icon" onClick={handleExportCalendar}>
-                <FileExport className="h-4 w-4" />
+                <FileDown className="h-4 w-4" />
               </Button>
             </div>
           </div>
