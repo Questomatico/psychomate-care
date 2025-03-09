@@ -8,7 +8,8 @@ import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-export type CalendarProps = React.ComponentProps<typeof DayPicker> & {
+// Define CalendarProps by extending DayPickerSingleProps
+export type CalendarProps = Omit<DayPickerSingleProps, "mode"> & {
   showManualInput?: boolean;
 };
 
@@ -134,6 +135,7 @@ function Calendar({
       )}
       
       <DayPicker
+        mode="single"
         showOutsideDays={showOutsideDays}
         className={cn("p-3 pointer-events-auto", className)}
         month={currentMonth}
