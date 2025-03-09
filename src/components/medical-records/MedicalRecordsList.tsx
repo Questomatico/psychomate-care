@@ -118,6 +118,15 @@ export default function MedicalRecordsList() {
 
     // Add the new record to the list
     setRecords([newRecord, ...records]);
+    
+    // Close the form
+    setIsFormOpen(false);
+    
+    // Show success toast
+    toast({
+      title: "Prontuário adicionado",
+      description: "O novo prontuário foi adicionado com sucesso!",
+    });
   };
 
   const handleExportRecords = () => {
@@ -136,10 +145,18 @@ export default function MedicalRecordsList() {
         });
         break;
       case "Baixar":
-        toast({
-          title: `Download de Prontuário`,
-          description: `Prontuário de ${record.patientName} baixado com sucesso!`,
-        });
+        if (record.hasAttachments) {
+          toast({
+            title: `Download de Prontuário`,
+            description: `Prontuário de ${record.patientName} baixado com sucesso!`,
+          });
+        } else {
+          toast({
+            title: `Download de Prontuário`,
+            description: `Este prontuário não possui anexos para baixar.`,
+            variant: "destructive"
+          });
+        }
         break;
       case "Editar":
         toast({
